@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI 模型每日气象站</title>
-    
-    <!-- 1. 核心依赖库 -->
+    <!-- 核心依赖 -->
     <script src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/prop-types/prop-types.min.js"></script>
@@ -14,187 +13,145 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.10.3/Recharts.min.js"></script>
 </head>
 <body class="bg-slate-50">
-
     <div id="root"></div>
 
     <script type="text/babel">
-        // --- 1. 图标组件 ---
-        const IconBase = ({ d, color = "currentColor", size = 20, className="" }) => (
-            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        // --- 图标组件定义 ---
+        const Icon = ({ d, color="currentColor" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d={d} />
             </svg>
         );
 
-        const Zap = (p) => <IconBase d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" {...p} />;
-        const Trophy = (p) => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>;
-        const Globe = (p) => <IconBase d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" {...p} />;
-        const Code = (p) => <IconBase d="m16 18 6-6-6-6M8 6l-6 6 6 6" {...p} />;
-        const PenTool = (p) => <IconBase d="m12 19 7-7 3 3-7 7-3-3zM18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5zM2 2l7.586 7.586M11 11l-4 4" {...p} />;
-        const BookOpen = (p) => <IconBase d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zM22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" {...p} />;
-        const BrainCircuit = (p) => <IconBase d="M12 4.5a2.5 2.5 0 0 0-4.96-.46 2.5 2.5 0 0 0-1.98 3 2.5 2.5 0 0 0-1.32 4.24 3 3 0 0 0 .34 5.58 2.5 2.5 0 0 0 2.96 3.08 2.5 2.5 0 0 0 4.91.05L12 20V4.5z" {...p} />;
-        const Search = (p) => <IconBase d="m21 21-4.3-4.3M19 11a8 8 0 1 1-16 0 8 8 0 0 1 16 0z" {...p} />;
-
-        // --- 2. 兜底演示数据 ---
-        const DEMO_DATA = {
-            date: "2025-11-23",
-            updateTime: "演示模式",
-            models: [
-                { id: "gpt-5", name: "GPT-5 Pro (Demo)", provider: "OpenAI", type: "General", globalRank: 1, weightedScore: 9.8, scores: {coding:9.8, logic:9.5, writing:9.0, context:9.2}, tags:["演示"], price:"$$", status:"stable", isNew:true },
-                { id: "claude-3", name: "Claude 3.5 (Demo)", provider: "Anthropic", type: "General", globalRank: 2, weightedScore: 9.6, scores: {coding:9.6, logic:9.2, writing:9.8, context:9.5}, tags:["演示"], price:"$$", status:"stable", isNew:false },
-                { id: "deepseek", name: "DeepSeek V3 (Demo)", provider: "DeepSeek", type: "Reasoning", globalRank: 3, weightedScore: 9.4, scores: {coding:9.4, logic:9.0, writing:8.5, context:9.0}, tags:["演示"], price:"$", status:"warning", isNew:false }
-            ]
+        // 图标路径
+        const ICONS = {
+            Zap: "M13 2L3 14h9l-1 8 10-12h-9l1-8z",
+            Trophy: "M6 9H4.5a2.5 2.5 0 0 1 0-5H6 M18 9h1.5a2.5 2.5 0 0 0 0-5H18 M4 22h16 M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22 M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22 M18 2H6v7a6 6 0 0 0 12 0V2Z",
+            Globe: "M2 12h20 M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z",
+            Code: "m16 18 6-6-6-6M8 6l-6 6 6 6",
+            PenTool: "m12 19 7-7 3 3-7 7-3-3zM18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5zM2 2l7.586 7.586M11 11l-4 4",
+            BookOpen: "M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zM22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z",
+            BrainCircuit: "M12 4.5a2.5 2.5 0 0 0-4.96-.46 2.5 2.5 0 0 0-1.98 3 2.5 2.5 0 0 0-1.32 4.24 3 3 0 0 0 .34 5.58 2.5 2.5 0 0 0 2.96 3.08 2.5 2.5 0 0 0 4.91.05L12 20V4.5z",
+            Search: "m21 21-4.3-4.3M19 11a8 8 0 1 1-16 0 8 8 0 0 1 16 0z"
         };
 
         const SCENARIOS = [
-            { id: 'coding', name: '编写代码', icon: Code, keyMetric: 'coding', secondaryMetric: 'logic' },
-            { id: 'writing', name: '创意写作', icon: PenTool, keyMetric: 'writing', secondaryMetric: 'instruction' },
-            { id: 'research', name: '学术研究', icon: BookOpen, keyMetric: 'context', secondaryMetric: 'logic' },
-            { id: 'logic', name: '逻辑推理', icon: BrainCircuit, keyMetric: 'logic', secondaryMetric: 'coding' },
+            { id: 'coding', name: '编写代码', iconPath: ICONS.Code, key: 'coding' },
+            { id: 'writing', name: '创意写作', iconPath: ICONS.PenTool, key: 'writing' },
+            { id: 'research', name: '学术研究', iconPath: ICONS.BookOpen, key: 'context' },
+            { id: 'logic', name: '逻辑推理', iconPath: ICONS.BrainCircuit, key: 'logic' },
         ];
+
+        // 演示数据
+        const DEMO_DATA = {
+            date: "2025-11-23", updateTime: "演示模式",
+            models: [
+                { id: "gpt-5", name: "GPT-5 Pro (Demo)", provider: "OpenAI", globalRank: 1, scores: {coding:9.8, logic:9.5, writing:9.0, context:9.2}, status:"stable", isNew:true },
+                { id: "claude-3", name: "Claude 3.5 (Demo)", provider: "Anthropic", globalRank: 2, scores: {coding:9.6, logic:9.2, writing:9.8, context:9.5}, status:"stable", isNew:false },
+                { id: "deepseek", name: "DeepSeek V3 (Demo)", provider: "DeepSeek", globalRank: 3, scores: {coding:9.4, logic:9.0, writing:8.5, context:9.0}, status:"warning", isNew:false }
+            ]
+        };
 
         const App = () => {
             const [data, setData] = React.useState(null);
-            const [selectedScenario, setSelectedScenario] = React.useState(SCENARIOS[0]);
-            const [searchTerm, setSearchTerm] = React.useState("");
+            const [scenario, setScenario] = React.useState(SCENARIOS[0]);
+            const [search, setSearch] = React.useState("");
 
-            // 1. 获取数据 (Hook)
+            // 加载数据
             React.useEffect(() => {
-                fetch('./data.json?t=' + new Date().getTime())
-                    .then(res => {
-                        if (!res.ok) throw new Error("File not found");
-                        return res.json();
-                    })
+                fetch('./data.json?t=' + Date.now())
+                    .then(r => r.ok ? r.json() : Promise.reject())
                     .then(setData)
-                    .catch(err => {
-                        console.log("加载真实数据失败，切换至演示数据:", err);
-                        setData(DEMO_DATA); 
-                    });
+                    .catch(() => setData(DEMO_DATA));
             }, []);
 
-            // 2. 数据处理逻辑 (Hook - 必须放在 if return 之前!)
-            const sortedModels = React.useMemo(() => {
-                // 如果没有数据，返回空数组，避免报错
+            // 计算排序
+            const sorted = React.useMemo(() => {
                 if (!data) return [];
-                
-                let filtered = data.models;
-                if (searchTerm) {
-                    const lowerTerm = searchTerm.toLowerCase();
-                    filtered = filtered.filter(m => 
-                        m.name.toLowerCase().includes(lowerTerm) || 
-                        m.provider.toLowerCase().includes(lowerTerm)
-                    );
+                let list = data.models;
+                if (search) {
+                    list = list.filter(m => m.name.toLowerCase().includes(search.toLowerCase()));
                 }
-                
-                return filtered.map(m => ({
+                return list.map(m => ({
                     ...m,
-                    score: m.scores ? (m.scores[selectedScenario.keyMetric] || 0) : 0
+                    score: m.scores ? (m.scores[scenario.key] || 0) : 0
                 })).sort((a, b) => b.score - a.score);
-            }, [data, selectedScenario, searchTerm]);
+            }, [data, scenario, search]);
 
-            // 3. 渲染前检查 (现在可以安全地检查了)
-            if (!data) {
-                return (
-                    <div className="h-screen flex flex-col items-center justify-center text-slate-400 space-y-4">
-                        <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-                        <div>正在连接 AI 数据中心...</div>
-                    </div>
-                );
-            }
+            if (!data) return <div className="h-screen flex items-center justify-center">启动中...</div>;
 
-            const bestModel = sortedModels[0];
+            const best = sorted[0];
 
             return (
                 <div className="min-h-screen pb-10 font-sans text-slate-900">
-                    <header className="bg-white border-b border-slate-200 sticky top-0 z-20 shadow-sm">
+                    {/* 头部 */}
+                    <header className="bg-white border-b border-slate-200 sticky top-0 z-20">
                         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <div className="bg-indigo-600 text-white p-2 rounded-lg">
-                                    <Zap size={24} color="white" />
-                                </div>
-                                <h1 className="text-xl font-bold text-slate-800 hidden md:block">AI Daily Pulse</h1>
+                            <div className="flex items-center gap-2">
+                                <div className="bg-indigo-600 text-white p-2 rounded"><Icon d={ICONS.Zap} color="white" /></div>
+                                <h1 className="text-xl font-bold">AI Daily Pulse</h1>
                             </div>
-                            <div className="text-xs text-slate-500 bg-slate-100 px-3 py-1 rounded-full">
-                                更新于: {data.updateTime}
-                            </div>
+                            <span className="text-xs bg-slate-100 px-2 py-1 rounded">更新于: {data.updateTime}</span>
                         </div>
                     </header>
 
                     <main className="max-w-6xl mx-auto px-4 py-8 space-y-8">
+                        {/* 场景选择 */}
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            {SCENARIOS.map(s => {
-                                const Icon = s.icon;
-                                const active = selectedScenario.id === s.id;
-                                return (
-                                    <button key={s.id} onClick={() => setSelectedScenario(s)}
-                                        className={`p-4 rounded-xl border flex flex-col items-center gap-2 transition-all ${active ? 'border-indigo-600 bg-indigo-50 text-indigo-700 shadow-md' : 'bg-white border-slate-200 hover:border-indigo-300'}`}>
-                                        <Icon size={28} color={active ? "#4338ca" : "#64748b"} />
-                                        <span className="font-bold text-sm">{s.name}</span>
-                                    </button>
-                                )
-                            })}
+                            {SCENARIOS.map(s => (
+                                <button key={s.id} onClick={() => setScenario(s)}
+                                    className={`p-4 rounded-xl border flex flex-col items-center gap-2 ${scenario.id === s.id ? 'border-indigo-600 bg-indigo-50 text-indigo-700' : 'bg-white'}`}>
+                                    <Icon d={s.iconPath} color={scenario.id === s.id ? "#4338ca" : "#64748b"} />
+                                    <span className="font-bold text-sm">{s.name}</span>
+                                </button>
+                            ))}
                         </div>
 
-                        {bestModel && (
-                            <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-6 md:p-8 text-white shadow-lg flex flex-col md:flex-row justify-between items-center gap-6">
+                        {/* 最佳推荐 */}
+                        {best && (
+                            <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-6 text-white flex justify-between items-center">
                                 <div>
-                                    <div className="flex items-center gap-2 text-indigo-100 mb-2 text-sm font-bold uppercase tracking-wider">
-                                        <Trophy size={16} color="#facc15" /> 今日最佳推荐
+                                    <div className="flex items-center gap-2 mb-2 text-sm font-bold opacity-80">
+                                        <Icon d={ICONS.Trophy} color="#facc15" /> 今日推荐
                                     </div>
-                                    <h2 className="text-3xl md:text-5xl font-bold mb-2">{bestModel.name}</h2>
-                                    <p className="text-indigo-100">基于 {selectedScenario.name} 场景实测得分</p>
+                                    <h2 className="text-3xl font-bold">{best.name}</h2>
                                 </div>
-                                <div className="bg-white/10 px-6 py-4 rounded-xl backdrop-blur-sm border border-white/20 text-center min-w-[120px]">
-                                    <div className="text-4xl font-bold">{bestModel.score}</div>
-                                    <div className="text-xs opacity-80 mt-1">匹配指数</div>
-                                </div>
+                                <div className="text-4xl font-bold bg-white/10 px-4 py-2 rounded-xl">{best.score}</div>
                             </div>
                         )}
 
-                        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
-                            <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-                                <h3 className="font-bold text-slate-700 flex items-center gap-2">
-                                    <Globe size={18} /> 实时榜单
-                                </h3>
+                        {/* 榜单 */}
+                        <div className="bg-white rounded-xl border border-slate-200 p-4">
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="font-bold flex gap-2"><Icon d={ICONS.Globe} /> 实时榜单</h3>
                                 <div className="relative">
-                                    <input 
-                                        type="text" 
-                                        placeholder="搜索模型..." 
-                                        className="pl-8 pr-3 py-1.5 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" 
-                                        value={searchTerm} 
-                                        onChange={(e) => setSearchTerm(e.target.value)} 
-                                    />
-                                    <div className="absolute left-2.5 top-2.5"><Search size={14} color="#94a3b8"/></div>
+                                    <input className="pl-8 pr-2 py-1 border rounded text-sm" placeholder="搜索..." value={search} onChange={e => setSearch(e.target.value)} />
+                                    <div className="absolute left-2 top-1.5"><Icon d={ICONS.Search} size={16} color="#94a3b8" /></div>
                                 </div>
                             </div>
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-left text-sm">
-                                    <thead className="bg-slate-50 text-slate-500 border-b border-slate-200">
-                                        <tr>
-                                            <th className="px-6 py-3 font-medium">排名</th>
-                                            <th className="px-6 py-3 font-medium">模型名称</th>
-                                            <th className="px-6 py-3 font-medium">厂商</th>
-                                            <th className="px-6 py-3 font-medium">得分</th>
-                                            <th className="px-6 py-3 font-medium">状态</th>
+                            <table className="w-full text-left text-sm">
+                                <thead className="bg-slate-50 text-slate-500">
+                                    <tr><th className="p-3">排名</th><th className="p-3">模型</th><th className="p-3">得分</th><th className="p-3">状态</th></tr>
+                                </thead>
+                                <tbody>
+                                    {sorted.map(m => (
+                                        <tr key={m.id} className="border-t border-slate-100 hover:bg-slate-50">
+                                            <td className="p-3">#{m.globalRank}</td>
+                                            <td className="p-3 font-bold">{m.name} <span className="text-slate-400 font-normal text-xs">{m.provider}</span></td>
+                                            <td className="p-3 text-indigo-600 font-bold">{m.score}</td>
+                                            <td className="p-3">{m.status === 'stable' ? '🟢 稳定' : '🟠 波动'}</td>
                                         </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-slate-100">
-                                        {sortedModels.map((model, idx) => (
-                                            <tr key={model.id} className="hover:bg-slate-50 transition-colors">
-                                                <td className="px-6 py-4 font-mono text-slate-500">#{model.globalRank}</td>
-                                                <td className="px-6 py-4 font-bold text-slate-800">{model.name}</td>
-                                                <td className="px-6 py-4 text-slate-500">{model.provider}</td>
-                                                <td className="px-6 py-4 font-bold text-indigo-600">{model.score}</td>
-                                                <td className="px-6 py-4">
-                                                    {model.status === 'stable' 
-                                                        ? <span className="inline-flex items-center gap-1 text-green-600 text-xs bg-green-50 px-2 py-1 rounded-full">● 稳定</span> 
-                                                        : <span className="inline-flex items-center gap-1 text-amber-600 text-xs bg-amber-50 px-2 py-1 rounded-full">● 波动</span>}
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
+                                    ))}
+                                </tbody>
+                            </table>
                         </div>
                     </main>
                 </div>
             );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
