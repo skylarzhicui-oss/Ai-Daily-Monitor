@@ -4,25 +4,59 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI 模型每日气象站 (Top 50)</title>
-    <!-- 引入 React 和 Tailwind CSS -->
-    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <!-- 1. 引入 React 核心 -->
+    <script src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+    <!-- 2. 引入 Babel (用于解析 JSX) -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- 3. 引入样式 Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- 引入图表库 Recharts -->
+    <!-- 4. 引入图表库 Recharts -->
     <script src="https://unpkg.com/recharts/umd/Recharts.js"></script>
-    <!-- 引入图标库 Lucide -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://unpkg.com/lucide-react@latest"></script>
+    <!-- 5. 引入图标库 Lucide React (关键修复) -->
+    <script src="https://unpkg.com/lucide-react@latest/dist/lucide-react.min.js"></script>
 </head>
 <body class="bg-slate-50">
-    <div id="root"></div>
+    <!-- 如果 React 挂了，显示这个错误提示 -->
+    <div id="root" class="h-screen flex items-center justify-center text-slate-400">
+        正在初始化 AI 气象站... (如果长时间停留在此，请按 F12 查看 Console 报错)
+    </div>
 
     <script type="text/babel">
-        // 从全局变量获取 Recharts 组件
-        const { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid } = Recharts;
-        // 获取 Lucide 图标
-        const { Trophy, Code, PenTool, BookOpen, BrainCircuit, AlertTriangle, TrendingUp, TrendingDown, Calendar, CheckCircle, Zap, ShieldAlert, Search, Filter, Cpu, Globe, RefreshCw, ArrowUpRight } = lucide;
+        // --- 全局变量获取区 (已修复) ---
+        
+        // 1. 获取 Recharts
+        // 如果 Recharts 加载失败，提供兜底对象防止白屏
+        const { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid } = window.Recharts || {};
+
+        // 2. 获取 Lucide 图标 (关键修复点)
+        // 在 CDN 模式下，lucide-react 的全局变量通常是 'lucideReact'
+        const Icons = window.lucideReact || window.lucide; 
+        
+        // 安全获取图标的辅助函数
+        const getIcon = (name) => {
+            if (Icons && Icons[name]) return Icons[name];
+            return () => <span>?</span>; // 如果找不到图标，显示问号防止崩溃
+        };
+
+        const Trophy = getIcon('Trophy');
+        const Code = getIcon('Code');
+        const PenTool = getIcon('PenTool');
+        const BookOpen = getIcon('BookOpen');
+        const BrainCircuit = getIcon('BrainCircuit');
+        const AlertTriangle = getIcon('AlertTriangle');
+        const TrendingUp = getIcon('TrendingUp');
+        const TrendingDown = getIcon('TrendingDown');
+        const Calendar = getIcon('Calendar');
+        const CheckCircle = getIcon('CheckCircle');
+        const Zap = getIcon('Zap');
+        const ShieldAlert = getIcon('ShieldAlert');
+        const Search = getIcon('Search');
+        const Filter = getIcon('Filter');
+        const Cpu = getIcon('Cpu');
+        const Globe = getIcon('Globe');
+        const RefreshCw = getIcon('RefreshCw');
+        const ArrowUpRight = getIcon('ArrowUpRight');
 
         const SCENARIOS = [
             { id: 'coding', name: '编写代码 / 架构设计', icon: Code, keyMetric: 'coding', secondaryMetric: 'logic' },
@@ -46,15 +80,16 @@
         const App = () => {
             const [data, setData] = React.useState(null);
             const [loading, setLoading] = React.useState(true);
+            const [errorMsg, setErrorMsg] = React.useState(null);
             const [selectedScenario, setSelectedScenario] = React.useState(SCENARIOS[0]);
             const [searchTerm, setSearchTerm] = React.useState("");
             const [filterProvider, setFilterProvider] = React.useState("All");
 
-            // 核心修改：从 data.json 文件读取真实数据！
             React.useEffect(() => {
-                fetch('./data.json')
+                // 增加随机参数防止缓存
+                fetch('./data.json?t=' + new Date().getTime())
                     .then(res => {
-                        if (!res.ok) throw new Error("尚未生成数据，请等待 Action 运行");
+                        if (!res.ok) throw new Error(`数据文件未找到 (Status: ${res.status})。请确保 GitHub Action 已成功运行并生成了 data.json`);
                         return res.json();
                     })
                     .then(jsonData => {
@@ -62,8 +97,8 @@
                         setLoading(false);
                     })
                     .catch(err => {
-                        console.error("加载数据失败:", err);
-                        // 如果读取失败（比如第一次运行），使用兜底数据
+                        console.error("加载失败:", err);
+                        setErrorMsg(err.message);
                         setLoading(false);
                     });
             }, []);
@@ -87,64 +122,78 @@
                 });
             }, [allScoredModels, searchTerm, filterProvider]);
 
-            if (loading) return <div className="h-screen flex items-center justify-center">正在加载今日 AI 数据...</div>;
-            if (!data) return <div className="h-screen flex flex-col items-center justify-center p-8 text-center">
-                <h2 className="text-xl font-bold mb-2">数据准备中...</h2>
-                <p>这是你第一次部署，机器人正在后台生成数据。</p>
-                <p className="text-sm text-slate-500 mt-2">请点击仓库上方的 Actions -> Daily AI Evaluation -> Run workflow 手动触发一次。</p>
-            </div>;
+            // 错误处理界面
+            if (errorMsg) return (
+                <div className="h-screen flex flex-col items-center justify-center p-8 text-center text-slate-600">
+                    <AlertTriangle size={48} className="text-amber-500 mb-4" />
+                    <h2 className="text-xl font-bold mb-2">数据加载异常</h2>
+                    <p className="max-w-md mb-4">{errorMsg}</p>
+                    <div className="text-sm bg-slate-100 p-4 rounded-lg text-left">
+                        <p className="font-bold">排查建议：</p>
+                        <ul className="list-disc pl-5 mt-1 space-y-1">
+                            <li>检查 GitHub Actions 是否显示绿色勾勾 ✅</li>
+                            <li>检查 Actions 日志中的 "Commit and push" 步骤是否成功</li>
+                            <li>如果是第一次部署，请等待 1-2 分钟后刷新页面</li>
+                        </ul>
+                    </div>
+                </div>
+            );
+
+            if (loading) return <div className="h-screen flex items-center justify-center animate-pulse text-slate-500">正在获取今日 AI 评测数据...</div>;
+            
+            // 数据为空时的引导界面
+            if (!data) return (
+                <div className="h-screen flex flex-col items-center justify-center p-8 text-center">
+                    <h2 className="text-xl font-bold mb-2">等待数据生成...</h2>
+                    <p className="text-slate-500">这是你第一次部署，机器人正在后台生成数据。</p>
+                    <p className="text-sm bg-indigo-50 text-indigo-700 mt-4 px-4 py-2 rounded-full">
+                        请点击仓库上方的 Actions -> Daily AI Evaluation -> Run workflow 手动触发一次
+                    </p>
+                </div>
+            );
 
             const bestModel = allScoredModels[0];
-            const radarData = [
-                { subject: '逻辑', A: allScoredModels[0]?.scores.logic || 0, B: allScoredModels[1]?.scores.logic || 0, fullMark: 10 },
-                { subject: '代码', A: allScoredModels[0]?.scores.coding || 0, B: allScoredModels[1]?.scores.coding || 0, fullMark: 10 },
-                { subject: '写作', A: allScoredModels[0]?.scores.writing || 0, B: allScoredModels[1]?.scores.writing || 0, fullMark: 10 },
-                { subject: '长文', A: allScoredModels[0]?.scores.context || 0, B: allScoredModels[1]?.scores.context || 0, fullMark: 10 },
-                { subject: '指令', A: allScoredModels[0]?.scores.instruction || 0, B: allScoredModels[1]?.scores.instruction || 0, fullMark: 10 },
-            ];
+            const providers = ["All", ...new Set(data.models.map(m => m.provider))];
 
             return (
-                <div className="min-h-screen text-slate-900 font-sans">
-                     {/* 顶部导航 */}
+                <div className="min-h-screen text-slate-900 font-sans pb-10">
                     <header className="bg-white border-b border-slate-200 sticky top-0 z-20 shadow-sm">
                         <div className="bg-slate-900 text-slate-300 text-[10px] py-1 px-4 flex justify-between items-center">
-                        <div className="flex items-center gap-4">
-                            <span className="flex items-center gap-1"><Globe size={10} /> 数据源: LMSYS (Top 50)</span>
-                            <span className="flex items-center gap-1"><RefreshCw size={10} /> 自动同步中</span>
+                            <div className="flex items-center gap-4">
+                                <span className="flex items-center gap-1"><Globe size={10} /> 数据源: LMSYS (Top 50)</span>
+                                <span className="flex items-center gap-1"><RefreshCw size={10} /> 自动同步中</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <span className="text-green-400">● 实时监控运行中</span>
+                                <span>更新于 {data.updateTime}</span>
+                            </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                            <span className="text-green-400">● 实时监控运行中</span>
-                            <span>更新于 {data.updateTime}</span>
-                        </div>
-                        </div>
-
                         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                            <div className="bg-indigo-600 text-white p-1.5 rounded-lg"><Zap size={20} fill="currentColor" /></div>
-                            <h1 className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
-                            AI Daily Pulse
-                            </h1>
-                        </div>
+                            <div className="flex items-center gap-2">
+                                <div className="bg-indigo-600 text-white p-1.5 rounded-lg"><Zap size={20} fill="currentColor" /></div>
+                                <h1 className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
+                                AI Daily Pulse
+                                </h1>
+                            </div>
                         </div>
                     </header>
 
                     <main className="max-w-6xl mx-auto px-4 py-6 space-y-6">
-                        {/* 任务选择器 */}
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                             {SCENARIOS.map((scenario) => {
-                            const Icon = scenario.icon;
-                            const isSelected = selectedScenario.id === scenario.id;
-                            return (
-                                <button key={scenario.id} onClick={() => setSelectedScenario(scenario)}
-                                className={`relative p-3 rounded-xl border transition-all duration-200 flex flex-col items-center gap-2 hover:shadow-md ${isSelected ? 'border-indigo-600 bg-indigo-50 text-indigo-700' : 'border-slate-200 bg-white text-slate-600'}`}>
-                                <Icon size={24} strokeWidth={1.5} />
-                                <span className="font-semibold text-xs">{scenario.name}</span>
-                                </button>
-                            );
+                                const Icon = scenario.icon;
+                                const isSelected = selectedScenario.id === scenario.id;
+                                return (
+                                    <button key={scenario.id} onClick={() => setSelectedScenario(scenario)}
+                                    className={`relative p-3 rounded-xl border transition-all duration-200 flex flex-col items-center gap-2 hover:shadow-md ${isSelected ? 'border-indigo-600 bg-indigo-50 text-indigo-700' : 'border-slate-200 bg-white text-slate-600'}`}>
+                                    {/* 这里使用 Icon 组件函数调用或直接渲染 */}
+                                    <Icon size={24} strokeWidth={1.5} />
+                                    <span className="font-semibold text-xs">{scenario.name}</span>
+                                    </button>
+                                );
                             })}
                         </div>
 
-                        {/* 冠军卡片 */}
                         {bestModel && (
                             <section className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-2xl p-6 text-white shadow-xl relative overflow-hidden flex flex-col md:flex-row justify-between items-center gap-6">
                                 <div className="relative z-10 flex-1">
@@ -166,11 +215,15 @@
                             </section>
                         )}
 
-                        {/* 榜单列表 */}
                         <section className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
-                            <div className="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                            <div className="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center flex-wrap gap-2">
                                 <h3 className="font-bold text-slate-700 flex items-center gap-2"><Globe size={18}/> 实时监控榜单</h3>
-                                <input type="text" placeholder="搜索模型..." className="px-3 py-1 text-sm border rounded-lg" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+                                <div className="flex gap-2">
+                                    <select className="px-2 py-1 text-sm border rounded-lg bg-white" value={filterProvider} onChange={(e) => setFilterProvider(e.target.value)}>
+                                        {providers.map(p => <option key={p} value={p}>{p === "All" ? "所有厂商" : p}</option>)}
+                                    </select>
+                                    <input type="text" placeholder="搜索模型..." className="px-3 py-1 text-sm border rounded-lg" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+                                </div>
                             </div>
                             <div className="overflow-x-auto">
                             <table className="w-full text-sm text-left">
