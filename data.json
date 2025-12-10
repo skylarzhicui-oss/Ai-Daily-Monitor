@@ -1,9 +1,9 @@
 {
-  "date": "2025-12-09",
-  "updateTime": "03:42 UTC",
+  "date": "2025-12-10",
+  "updateTime": "03:47 UTC",
   "totalMonitored": 52,
-  "newEntries": 3,
-  "dropped": 1,
+  "newEntries": 1,
+  "dropped": 2,
   "models": [
     {
       "id": "gpt-5-pro",
@@ -14,12 +14,12 @@
       "rankChange": 2,
       "isNew": true,
       "scores": {
-        "logic": 9.4,
-        "coding": 9.4,
-        "writing": 9.2,
-        "context": 8.9,
-        "instruction": 9.6,
-        "safety": 7.6
+        "logic": 9.3,
+        "coding": 9.3,
+        "writing": 9.1,
+        "context": 8.7,
+        "instruction": 9.4,
+        "safety": 8.8
       },
       "status": "stable",
       "tags": [
@@ -34,15 +34,15 @@
       "provider": "OpenAI",
       "type": "Reasoning",
       "globalRank": 2,
-      "rankChange": 2,
+      "rankChange": -1,
       "isNew": false,
       "scores": {
         "logic": 9.9,
         "coding": 9.2,
         "writing": 7.9,
-        "context": 8.8,
-        "instruction": 9.0,
-        "safety": 9.2
+        "context": 8.5,
+        "instruction": 8.6,
+        "safety": 9.1
       },
       "status": "stable",
       "tags": [
@@ -57,15 +57,15 @@
       "provider": "OpenAI",
       "type": "General",
       "globalRank": 3,
-      "rankChange": 2,
+      "rankChange": 1,
       "isNew": false,
       "scores": {
-        "logic": 9.0,
-        "coding": 8.8,
-        "writing": 8.5,
-        "context": 9.7,
-        "instruction": 9.4,
-        "safety": 7.5
+        "logic": 8.8,
+        "coding": 8.6,
+        "writing": 8.3,
+        "context": 9.1,
+        "instruction": 9.3,
+        "safety": 9.1
       },
       "status": "stable",
       "tags": [
@@ -82,12 +82,12 @@
       "rankChange": -2,
       "isNew": false,
       "scores": {
-        "logic": 8.8,
-        "coding": 9.7,
-        "writing": 9.5,
-        "context": 9.1,
-        "instruction": 9.2,
-        "safety": 7.8
+        "logic": 8.6,
+        "coding": 9.5,
+        "writing": 9.3,
+        "context": 8.7,
+        "instruction": 9.8,
+        "safety": 7.6
       },
       "status": "stable",
       "tags": [
@@ -104,12 +104,12 @@
       "rankChange": 2,
       "isNew": false,
       "scores": {
-        "logic": 8.5,
-        "coding": 8.2,
-        "writing": 8.1,
-        "context": 9.4,
-        "instruction": 9.4,
-        "safety": 7.5
+        "logic": 8.4,
+        "coding": 8.1,
+        "writing": 8.0,
+        "context": 9.6,
+        "instruction": 9.5,
+        "safety": 9.4
       },
       "status": "stable",
       "tags": [
@@ -123,15 +123,15 @@
       "provider": "DeepSeek",
       "type": "General",
       "globalRank": 6,
-      "rankChange": 1,
+      "rankChange": 2,
       "isNew": false,
       "scores": {
-        "logic": 8.6,
-        "coding": 8.9,
-        "writing": 8.1,
-        "context": 9.4,
-        "instruction": 9.3,
-        "safety": 8.8
+        "logic": 8.5,
+        "coding": 8.8,
+        "writing": 8.0,
+        "context": 8.1,
+        "instruction": 9.6,
+        "safety": 9.0
       },
       "status": "stable",
       "tags": [
