@@ -1,8 +1,8 @@
 {
-  "date": "2026-01-13",
-  "updateTime": "01:39 UTC",
+  "date": "2026-01-14",
+  "updateTime": "01:46 UTC",
   "totalMonitored": 52,
-  "newEntries": 1,
+  "newEntries": 0,
   "dropped": 1,
   "models": [
     {
@@ -11,15 +11,15 @@
       "provider": "OpenAI",
       "type": "General",
       "globalRank": 1,
-      "rankChange": -1,
+      "rankChange": 2,
       "isNew": true,
       "scores": {
-        "logic": 9.4,
-        "coding": 9.4,
-        "writing": 9.2,
-        "context": 8.7,
-        "instruction": 8.6,
-        "safety": 9.4
+        "logic": 9.3,
+        "coding": 9.3,
+        "writing": 9.1,
+        "context": 9.0,
+        "instruction": 9.2,
+        "safety": 8.5
       },
       "status": "stable",
       "tags": [
@@ -34,15 +34,15 @@
       "provider": "OpenAI",
       "type": "Reasoning",
       "globalRank": 2,
-      "rankChange": -1,
+      "rankChange": 0,
       "isNew": false,
       "scores": {
-        "logic": 10.0,
-        "coding": 9.3,
-        "writing": 8.0,
-        "context": 9.6,
-        "instruction": 9.3,
-        "safety": 9.2
+        "logic": 9.9,
+        "coding": 9.2,
+        "writing": 7.9,
+        "context": 9.7,
+        "instruction": 9.4,
+        "safety": 8.2
       },
       "status": "stable",
       "tags": [
@@ -57,15 +57,15 @@
       "provider": "OpenAI",
       "type": "General",
       "globalRank": 3,
-      "rankChange": 0,
+      "rankChange": -2,
       "isNew": false,
       "scores": {
         "logic": 8.9,
         "coding": 8.7,
         "writing": 8.4,
-        "context": 8.1,
-        "instruction": 8.8,
-        "safety": 8.6
+        "context": 8.0,
+        "instruction": 9.0,
+        "safety": 9.0
       },
       "status": "stable",
       "tags": [
@@ -79,15 +79,15 @@
       "provider": "Anthropic",
       "type": "General",
       "globalRank": 4,
-      "rankChange": -2,
+      "rankChange": 1,
       "isNew": false,
       "scores": {
-        "logic": 8.9,
-        "coding": 9.8,
-        "writing": 9.6,
-        "context": 9.2,
-        "instruction": 9.6,
-        "safety": 9.3
+        "logic": 8.7,
+        "coding": 9.6,
+        "writing": 9.4,
+        "context": 8.6,
+        "instruction": 8.9,
+        "safety": 8.0
       },
       "status": "stable",
       "tags": [
@@ -104,11 +104,11 @@
       "rankChange": -2,
       "isNew": false,
       "scores": {
-        "logic": 8.3,
-        "coding": 8.0,
-        "writing": 7.9,
-        "context": 9.8,
-        "instruction": 9.1,
+        "logic": 8.5,
+        "coding": 8.2,
+        "writing": 8.1,
+        "context": 8.4,
+        "instruction": 9.3,
         "safety": 8.3
       },
       "status": "stable",
@@ -129,11 +129,11 @@
         "logic": 8.8,
         "coding": 9.1,
         "writing": 8.3,
-        "context": 9.1,
-        "instruction": 9.7,
-        "safety": 9.3
+        "context": 8.5,
+        "instruction": 8.8,
+        "safety": 7.7
       },
-      "status": "warning",
+      "status": "stable",
       "tags": [
         "稳定"
       ],
